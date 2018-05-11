@@ -29,6 +29,9 @@ main(int argc, char *argv[])
     if (argc > 1 && strcmp(argv[1], "--help") == 0)
         usageErr("%s [exit-status]\n", argv[0]);
 
+//	if(signal(SIGINT,sigHandler)==SIG_ERR){
+//	exit(-1);
+//	}
     switch (fork()) {
     case -1: errExit("fork");
 
@@ -39,17 +42,22 @@ main(int argc, char *argv[])
             exit(getInt(argv[1], 0, "exit-status"));
         else        
 						/* Otherwise, wait for signals */
-				if(signal(SIGINT,sigHandler)==SIG_ERR){
-					printf("perror\n");
-					exit(-1);
-				}
             for (;;)
                 pause();
         exit(EXIT_FAILURE);             /* Not reached, but good practice */
 
     default:            /* Parent: repeatedly wait on child until it
                            either exits or is terminated by a signal */
-        for (;;) {
+        
+		if(signal(SIGINT,sigHandler)==SIG_ERR){
+		printf("perror\n");
+		exit(-1);
+		}
+		for (;;) {
+		//		if(signal(SIGINT,sigHandler)==SIG_ERR){
+		//		printf("perror\n");
+		//		exit(-1);
+		//		}
             childPid = waitpid(-1, &status, WUNTRACED
 #ifdef WCONTINUED       /* Not present on older versions of Linux */
                                                 | WCONTINUED
